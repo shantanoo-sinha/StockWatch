@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/clStockRow"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/colorBackground">
+
+    <TextView
+        android:id="@+id/tvStockSymbol"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="5dp"
+        android:textColor="@color/colorText"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="@string/stock_symbol" />
+
+    <TextView
+        android:id="@+id/tvStockName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:textColor="@color/colorText"
+        android:textStyle="italic"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/tvStockSymbol"
+        app:layout_constraintTop_toBottomOf="@id/tvStockSymbol"
+        tools:text="@string/stock_name" />
+
+    <TextView
+        android:id="@+id/tvStockPrice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="5dp"
+        android:textColor="@color/colorText"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="@+id/tvStockSymbol"
+        app:layout_constraintEnd_toStartOf="@+id/guideline"
+        app:layout_constraintTop_toTopOf="@+id/tvStockSymbol"
+        tools:text="@string/stock_price" />
+
+    <TextView
+        android:id="@+id/tvStockPriceChange"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/colorText"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="@+id/tvStockSymbol"
+        app:layout_constraintEnd_toStartOf="@+id/tvStockPriceChangePercentage"
+        app:layout_constraintStart_toEndOf="@+id/ivStockChangeDirection"
+        app:layout_constraintTop_toTopOf="@+id/tvStockSymbol"
+        tools:text="@string/price_change" />
+
+    <TextView
+        android:id="@+id/tvStockPriceChangePercentage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="5dp"
+        android:textColor="@color/colorText"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="@+id/tvStockSymbol"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/tvStockSymbol"
+        tools:text="@string/change_percent" />
+
+    <ImageView
+        android:id="@+id/ivStockChangeDirection"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:contentDescription="@string/stock_change_percent_direction"
+        app:layout_constraintBottom_toBottomOf="@+id/tvStockSymbol"
+        app:layout_constraintStart_toStartOf="@+id/guideline"
+        app:layout_constraintTop_toTopOf="@id/tvStockSymbol"
+        app:srcCompat="@android:drawable/arrow_up_float" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.5" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
