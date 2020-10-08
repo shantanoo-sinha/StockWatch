@@ -6,7 +6,7 @@ import java.util.Objects;
 /**
  * Created by Shantanoo on 10/2/2020.
  */
-public class Stock implements Serializable {
+public class Stock implements Serializable, Comparable<Stock> {
 
     private String stockSymbol;
     private String stockName;
@@ -23,6 +23,11 @@ public class Stock implements Serializable {
         this.stockPrice = stockPrice;
         this.stockPriceChange = stockPriceChange;
         this.stockPriceChangePercentage = stockPriceChangePercentage;
+    }
+
+    public Stock(String stockSymbol, String stockName) {
+        this.stockSymbol = stockSymbol;
+        this.stockName = stockName;
     }
 
     public String getStockSymbol() {
@@ -87,5 +92,12 @@ public class Stock implements Serializable {
                 ", stockPriceChange=" + stockPriceChange +
                 ", stockPriceChangePercentage=" + stockPriceChangePercentage +
                 '}';
+    }
+
+    @Override
+    public int compareTo(Stock o) {
+        if (o.getStockSymbol() == null)
+            return 0;
+        return o.getStockSymbol().compareTo(this.getStockSymbol());
     }
 }
