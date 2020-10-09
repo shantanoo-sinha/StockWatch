@@ -11,8 +11,21 @@
     <string name="add_stock_message">Please enter a Stock symbol:</string>
     <string name="ok">OK</string>
     <string name="cancel">CANCEL</string>
-    <string name="empty_stock_message">Input is empty.\nPlease try again with non-empty stock symbol like TSLA.</string>
+    <string name="empty_stock_message">Input is empty. Please try again with non-empty stock symbol.\nFor example, TSLA.</string>
     <string name="unknown_item">Unknown item</string>
     <string name="no_network_connection_message_title">No Network Connection</string>
     <string name="no_network_connection_message">Stocks Cannot Be Updated Without A Network Connection</string>
+    <string name="symbol">symbol</string>
+    <string name="name">name</string>
+    <string name="company_name">companyName</string>
+    <string name="latest_price">latestPrice</string>
+    <string name="change">change</string>
+    <string name="change_percentage">changePercent</string>
+    <string name="delete_stock_title">Delete Stock</string>
+    <string name="delete">DELETE</string>
+    <string name="delete_stock_message">Delete Stock Symbol</string>
+    <string name="question">\?</string>
+    <string name="hyphen">-</string>
+    <string name="no_network_connection">No Network Connection</string>
+    <string name="duplicate_stock">Duplicate Stock</string>
 </resources>

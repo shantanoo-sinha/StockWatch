@@ -17,6 +17,11 @@ public class Stock implements Serializable, Comparable<Stock> {
     public Stock() {
     }
 
+    public Stock(String stockSymbol, String stockName) {
+        this.stockSymbol = stockSymbol;
+        this.stockName = stockName;
+    }
+
     public Stock(String stockSymbol, String stockName, double stockPrice, double stockPriceChange, double stockPriceChangePercentage) {
         this.stockSymbol = stockSymbol;
         this.stockName = stockName;
@@ -25,45 +30,40 @@ public class Stock implements Serializable, Comparable<Stock> {
         this.stockPriceChangePercentage = stockPriceChangePercentage;
     }
 
-    public Stock(String stockSymbol, String stockName) {
-        this.stockSymbol = stockSymbol;
-        this.stockName = stockName;
-    }
-
     public String getStockSymbol() {
         return stockSymbol;
-    }
-
-    public void setStockSymbol(String stockSymbol) {
-        this.stockSymbol = stockSymbol;
     }
 
     public String getStockName() {
         return stockName;
     }
 
-    public void setStockName(String stockName) {
-        this.stockName = stockName;
-    }
-
     public double getStockPrice() {
         return stockPrice;
-    }
-
-    public void setStockPrice(double stockPrice) {
-        this.stockPrice = stockPrice;
     }
 
     public double getStockPriceChange() {
         return stockPriceChange;
     }
 
-    public void setStockPriceChange(double stockPriceChange) {
-        this.stockPriceChange = stockPriceChange;
-    }
-
     public double getStockPriceChangePercentage() {
         return stockPriceChangePercentage;
+    }
+
+    public void setStockSymbol(String stockSymbol) {
+        this.stockSymbol = stockSymbol;
+    }
+
+    public void setStockName(String stockName) {
+        this.stockName = stockName;
+    }
+
+    public void setStockPrice(double stockPrice) {
+        this.stockPrice = stockPrice;
+    }
+
+    public void setStockPriceChange(double stockPriceChange) {
+        this.stockPriceChange = stockPriceChange;
     }
 
     public void setStockPriceChangePercentage(double stockPriceChangePercentage) {

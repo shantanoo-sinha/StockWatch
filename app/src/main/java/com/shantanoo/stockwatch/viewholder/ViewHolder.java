@@ -1,6 +1,6 @@
 package com.shantanoo.stockwatch.viewholder;
 
-import android.graphics.Color;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -50,6 +50,6 @@ public class ViewHolder extends RecyclerView.ViewHolder {
         tvStockName.setText(stock.getStockName());
         tvStockPrice.setText(String.format(Locale.US, "%.2f", stock.getStockPrice()));
         tvStockPriceChange.setText(String.format(Locale.US, "%.2f", stock.getStockPriceChange()));
-        tvStockPriceChangePercentage.setText(String.format(Locale.US, "%.2f", stock.getStockPriceChangePercentage()));
+        tvStockPriceChangePercentage.setText(String.format(Locale.US, "(%.2f%%)", stock.getStockPriceChangePercentage()));
     }
 }

@@ -2,8 +2,12 @@ package com.shantanoo.stockwatch;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.InputFilter;
 import android.text.TextUtils;
@@ -13,6 +17,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -25,8 +30,8 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.shantanoo.stockwatch.adapter.StocksAdapter;
 import com.shantanoo.stockwatch.database.DatabaseHandler;
 import com.shantanoo.stockwatch.model.Stock;
-import com.shantanoo.stockwatch.service.StockDataService;
-import com.shantanoo.stockwatch.service.StockMasterService;
+import com.shantanoo.stockwatch.service.StockDataDownloaderService;
+import com.shantanoo.stockwatch.service.StockNameDownloaderService;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -38,12 +43,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private static final String TAG = "MainActivity";
 
-    private static final String API_KEY = "pk_ab02406ce6c34caf85b5f61aa7c983bf";
-    private static final String BASE_URL = "https://cloud.iexapis.com/stable/stock/";
-    private static final String QUOTE_TOKEN = "quote?token=";
+    private static final int ON_LOAD = 1;
+    private static final int ADD_STOCK = 2;
+    private static final int REFRESH = 3;
+
+    private static final String MARKET_WATCH_URL = "http://www.marketwatch.com/investing/stock/";
 
     private List<Stock> stocks;
-    private Map<String, String> stockMaster;
+    private Map<String, String> stockNamesMaster;
 
     private RecyclerView recyclerView;
     private SwipeRefreshLayout swipeRefreshLayout;
@@ -60,41 +67,53 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
 
         stocks = new ArrayList<>();
-        stockMaster = new HashMap<>();
-        //setData();
+        stockNamesMaster = new HashMap<>();
 
         stocksAdapter = new StocksAdapter(stocks, this);
         recyclerView.setAdapter(stocksAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
+        /*swipeRefreshLayout.setProgressViewOffset(true, 0, 200);
+        swipeRefreshLayout.setColorSchemeColors(getResources().getColor(android.R.color.holo_blue_bright));*/
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 Log.d(TAG, "reload: STARTED");
                 swipeRefreshLayout.setRefreshing(false);
 
-                if(isConnectedToNetwork()) {
+                if (isConnectedToNetwork()) {
                     ArrayList<Stock> stocksList = dbHandler.loadStocks();
                     for (int i = 0; i < stocksList.size(); i++) {
                         String symbol = stocksList.get(i).getStockSymbol();
-                        new StockDataService(MainActivity.this).execute(symbol);
+                        new StockDataDownloaderService(MainActivity.this).execute(symbol);
                     }
                     Log.d(TAG, "reload: COMPLETED");
                     return;
                 }
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(getApplicationContext());
-                builder.setTitle(R.string.no_network_connection_message_title);
-                builder.setMessage(R.string.no_network_connection_message);
-                AlertDialog alertDialog = builder.create();
-                alertDialog.show();
+                onNetworkDisconnected(REFRESH);
+                Log.d(TAG, "reload: COMPLETED");
             }
         });
 
-        new StockMasterService(this).execute();
+        new StockNameDownloaderService(this).execute();
         dbHandler = new DatabaseHandler(this);
         stocks.addAll(dbHandler.loadStocks());
         Collections.sort(stocks);
+        stocksAdapter.notifyDataSetChanged();
+        if (isConnectedToNetwork()) {
+            for (int i = 0; i < stocks.size(); i++) {
+                String symbol = stocks.get(i).getStockSymbol();
+                new StockDataDownloaderService(MainActivity.this).execute(symbol);
+            }
+        } else
+            onNetworkDisconnected(ON_LOAD);
+    }
+
+    @Override
+    protected void onResume() {
+        Log.d(TAG, "onResume: ");
+        super.onResume();
         stocksAdapter.notifyDataSetChanged();
     }
 
@@ -105,30 +124,52 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         dbHandler.shutDown();
     }
 
-    /*private void setData() {
-        stocks.add(new Stock("TSLA", "Tesla", 123.01, 23.01, 23.0));
-        stocks.add(new Stock("AMZN", "Amazon", 123.01, -23.01, 23.0));
-        stocks.add(new Stock("FCBK", "Facebook", 123.01, 23.01, 23.0));
-        stocks.add(new Stock("APPL", "Apple", 123.01, -23.01, 23.0));
-        stocks.add(new Stock("GOGL", "Google", 123.01, 23.01, 23.0));
-        stocks.add(new Stock("MSFT", "Microsoft", 123.01, -23.01, 23.0));
-    }*/
-
-
     @Override
     public void onClick(View v) {
         Log.d(TAG, "onClick: ");
         int position = recyclerView.getChildLayoutPosition(v);
         Stock stock = stocks.get(position);
-        Toast.makeText(this, "On Click", Toast.LENGTH_SHORT).show();
+
+        String marketWatchURL = MARKET_WATCH_URL + stock.getStockSymbol();
+
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(Uri.parse(marketWatchURL));
+        startActivity(intent);
     }
 
     @Override
     public boolean onLongClick(View v) {
         Log.d(TAG, "onLongClick: ");
-        int position = recyclerView.getChildLayoutPosition(v);
-        Stock stock = stocks.get(position);
-        Toast.makeText(this, "On Long Click", Toast.LENGTH_SHORT).show();
+        final int position = recyclerView.getChildLayoutPosition(v);
+        final Stock stock = stocks.get(position);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.delete_stock_title);
+        builder.setIcon(R.drawable.outline_delete_outline_black_48);
+        builder.setMessage(getString(R.string.delete_stock_message) + " " + stock.getStockSymbol() + getString(R.string.question));
+
+        // DELETE button
+        builder.setPositiveButton(getString(R.string.delete), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dbHandler.deleteStock(stock.getStockSymbol());
+                stocks.remove(position);
+                stocksAdapter.notifyDataSetChanged();
+                Log.d(TAG, "onLongClick: Stock Deleted");
+            }
+        });
+
+        // CANCEL button
+        builder.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // Do nothing
+                Log.d(TAG, "onLongClick: Cancelled");
+            }
+        });
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
         return false;
     }
 
@@ -143,16 +184,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Log.d(TAG, "onOptionsItemSelected: " + item.getItemId());
         switch (item.getItemId()) {
             case R.id.mnuAddStock:
-                addNewStock();
+                showAddNewStockDialog();
                 break;
             default:
                 Log.d(TAG, "Unknown menu item: " + item.getItemId());
-                Toast.makeText(this, R.string.unknown_item, Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getString(R.string.unknown_item), Toast.LENGTH_SHORT).show();
         }
         return super.onOptionsItemSelected(item);
     }
 
-    private void addNewStock() {
+    private void showAddNewStockDialog() {
+
+        // If no network, show dialog
+        if (!isConnectedToNetwork()) {
+            onNetworkDisconnected(ADD_STOCK);
+            return;
+        }
+
+        if (stockNamesMaster == null || stockNamesMaster.isEmpty())
+            new StockNameDownloaderService(this).execute();
+
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(getApplicationContext().getString(R.string.stock_selection));
         builder.setMessage(getApplicationContext().getString(R.string.add_stock_message));
@@ -168,39 +219,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String stockSymbol = etStockSymbol.getText().toString().trim();
-                if(TextUtils.isEmpty(stockSymbol)) {
+                if (TextUtils.isEmpty(stockSymbol)) {
                     Log.d(TAG, "setPositiveButton => onClick: Stock symbol empty");
                     Toast.makeText(getApplicationContext(), getApplicationContext().getString(R.string.empty_stock_message), Toast.LENGTH_SHORT).show();
+                } else {
+                    ArrayList<String> stockList = searchStock(stockSymbol);
+                    if (stockList.isEmpty())
+                        showStockNotFoundDialog(stockSymbol);
+                    else if (stockList.size() == 1) {
+                        String stockOption = stockList.get(0);
+                        if (checkDuplicate(stockOption))
+                            showDuplicateStockDialog(stockSymbol);
+                        else
+                            addNewStock(stockOption);
+                    } else {
+                        showMultipleStocksFoundDialog(stockSymbol, stockList);
+                    }
                 }
             }
         });
-/*        builder.setPositiveButton(getApplicationContext().getString(R.string.ok), new DialogInterface.OnClickListener() {
-
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                // Checking for internet connection
-                if (!checkConnectivity())
-                    noConnectivity("Add Stock");
-                else if (stockSymbolET.getText().toString().trim().isEmpty()) // In input field was empty
-                    Toast.makeText(MainActivity.this, "Input field was empty.\nTry again enter stock symbol like TSLA..", Toast.LENGTH_LONG).show();
-                else {
-                    // Search for a possible stock with the given name
-                    ArrayList<String> stockResults = searchStock(stockSymbolET.getText().toString().trim());
-                    if (!stockResults.isEmpty()) {
-                        ArrayList<String> stockOptions = new ArrayList<>(stockResults);
-
-                        if (stockOptions.size() == 1) { // If only one stock option was found
-                            if (checkDuplicate(stockOptions.get(0))) // Check if stock is already part of the list
-                                duplicateStockDialog(stockSymbolET.getText().toString());
-                            else // New stock found will be added to the stock list
-                                addNewStock(stockOptions.get(0));
-                        } else // If more than stock was found
-                            multipleStocksFound(stockSymbolET.getText().toString(), stockOptions, stockOptions.size());
-                    } else // If no stock options were found
-                        stockNotFound(stockSymbolET.getText().toString());
-                }
-            }
-        });*/
 
         // CANCEL Button
         builder.setNegativeButton(getApplicationContext().getString(R.string.cancel), new DialogInterface.OnClickListener() { // NEGATIVE Button
@@ -214,31 +251,45 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         dialog.show();
     }
 
-    public void populateStockData(HashMap<String, String> stockMaster) {
-        if (stockMaster != null && !stockMaster.isEmpty())
-            this.stockMaster = stockMaster;
+    private void addNewStock(String selection) {
+        Log.d(TAG, "addNewStock:");
+        String symbol = selection.split(getString(R.string.hyphen))[0].trim();
+        new StockDataDownloaderService(MainActivity.this).execute(symbol);
+        Stock stock = new Stock(symbol, stockNamesMaster.get(symbol));
+        dbHandler.addStock(stock);
     }
 
-    private ArrayList<String> searchStock(String stock) {
-        Log.d(TAG, "searchStock: STARTED");
-        ArrayList<String> stockList = new ArrayList<>();
+    public void populateStockNamesData(HashMap<String, String> stockMaster) {
+        Log.d(TAG, "populateStockNamesData: ");
         if (stockMaster != null && !stockMaster.isEmpty())
+            this.stockNamesMaster = stockMaster;
+    }
+
+    private ArrayList<String> searchStock(String searchStock) {
+        Log.d(TAG, "searchStock:");
+        ArrayList<String> stockList = new ArrayList<>();
+        if (TextUtils.isEmpty(searchStock) || stockNamesMaster == null || stockNamesMaster.isEmpty())
             return stockList;
 
-        for (String symbol : stockMaster.keySet()) {
-            String name = stockMaster.get(symbol);
-            if (symbol.toUpperCase().contains(stock.toUpperCase()) || name.toUpperCase().contains(stock.toUpperCase()))
+        for (String symbol : stockNamesMaster.keySet()) {
+            String name = stockNamesMaster.get(symbol);
+            if (symbol.toUpperCase().contains(searchStock.toUpperCase()) || (name != null && name.toUpperCase().contains(searchStock.toUpperCase())))
                 stockList.add(symbol + " - " + name);
         }
-        Log.d(TAG, "searchStock: COMPLETED");
         return stockList;
+    }
+
+    private boolean checkDuplicate(String input) {
+        Log.d(TAG, "checkDuplicate: Checking for duplicate stock");
+        String symbol = input.split(getString(R.string.hyphen))[0].trim();
+        Stock stock = new Stock(symbol, null);
+        return stocks.contains(stock);
     }
 
     // Check if internet connectivity is established
     private boolean isConnectedToNetwork() {
         Log.d(TAG, "isConnectedToNetwork: Checking network connectivity");
-        ConnectivityManager cm =
-                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         if (cm == null) {
             Log.d(TAG, "isConnectedToNetwork: Network not connected");
             Toast.makeText(this, "Cannot access ConnectivityManager", Toast.LENGTH_SHORT).show();
@@ -254,7 +305,92 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return false;
     }
 
-    public void populateStockFinancialData(Stock stock) {
+    public void populateStocksData(Stock stock) {
+        Log.d(TAG, "populateStocksData: ");
+        if (stock != null) {
+            int index = stocks.indexOf(stock);
+            if (index > -1)
+                stocks.remove(index);
+            stocks.add(stock);
+            Collections.sort(stocks);
+            stocksAdapter.notifyDataSetChanged();
+        }
+    }
 
+    public void onNetworkDisconnected(int action) {
+        Log.d(TAG, "onNetworkDisconnected: STARTED");
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(getString(R.string.no_network_connection));
+        String message = "";
+        switch (action) {
+            case ON_LOAD:
+                message = "Stocks App Needs Network Connection To Fetch Latest Prices\nLoading Saved Stocks With Price As $0";
+                break;
+            case ADD_STOCK:
+                message = "Stocks Cannot Be Added Without A Network Connection";
+                break;
+            case REFRESH:
+                message = "Stocks Cannot Be Updated Without A Network Connection";
+                break;
+            default:
+                Log.e(TAG, "onNetworkDisconnected: Unknown operation");
+                break;
+        }
+        builder.setMessage(message);
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+        Log.d(TAG, "onNetworkDisconnected: COMPLETED");
+    }
+
+    private void showDuplicateStockDialog(String symbol) {
+        Log.d(TAG, "showDuplicateStockDialog:");
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setIcon(R.drawable.baseline_warning_black_48);
+        builder.setTitle(getString(R.string.duplicate_stock));
+        builder.setMessage("Stock Symbol " + symbol + " is already displayed");
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    private void showStockNotFoundDialog(String symbol) {
+        Log.d(TAG, "showStockNotFoundDialog:");
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Symbol Not Found: " + symbol);
+        builder.setMessage("Data for stock symbol");
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    private void showMultipleStocksFoundDialog(final String symbol, ArrayList<String> stockOptions) {
+        Log.d(TAG, "showMultipleStocksFoundDialog:");
+        final String[] options = stockOptions.toArray(new String[0]);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Make a Selection");
+        builder.setIcon(R.drawable.baseline_list_black_48);
+
+        // Set the available options for selection
+        builder.setItems(options, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (checkDuplicate(options[which]))
+                    showDuplicateStockDialog(symbol);
+                else
+                    addNewStock(options[which]);
+            }
+        });
+
+        // Don't do anything if "NEVER MIND" is clicked
+        builder.setNegativeButton("NEVER MIND", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Log.d(TAG, "showMultipleStocksFoundDialog: Stock Selection cancelled");
+            }
+        });
+
+        AlertDialog dialog = builder.create();
+        ListView listView = dialog.getListView();
+        listView.setDivider(new ColorDrawable(Color.BLUE));
+        listView.setDividerHeight(1);
+        dialog.show();
     }
 }

@@ -5,6 +5,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.shantanoo.stockwatch.MainActivity;
+import com.shantanoo.stockwatch.R;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -20,13 +21,13 @@ import java.util.Map;
 /**
  * Created by Shantanoo on 10/7/2020.
  */
-public class StockMasterService extends AsyncTask<Void, Void, String> {
-    private static final String TAG = "StockMasterService";
+public class StockNameDownloaderService extends AsyncTask<Void, Void, String> {
+    private static final String TAG = "StockNameDownloader";
     private static final String DOWNLOAD_LINK = "https://api.iextrading.com/1.0/ref-data/symbols";
 
     private MainActivity mainActivity;
 
-    public StockMasterService(MainActivity mainActivity) {
+    public StockNameDownloaderService(MainActivity mainActivity) {
         this.mainActivity = mainActivity;
     }
 
@@ -59,7 +60,7 @@ public class StockMasterService extends AsyncTask<Void, Void, String> {
     @Override
     protected void onPostExecute(String s) {
         super.onPostExecute(s);
-        mainActivity.populateStockData((HashMap<String, String>) parseJSON(s));
+        mainActivity.populateStockNamesData((HashMap<String, String>) parseJSON(s));
     }
 
     private Map<String, String> parseJSON(String input) {
@@ -68,8 +69,8 @@ public class StockMasterService extends AsyncTask<Void, Void, String> {
             JSONArray jsonArray = new JSONArray(input);
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
-                String symbol = jsonObject.getString("symbol");
-                String name = jsonObject.getString("name");
+                String symbol = jsonObject.getString(mainActivity.getString(R.string.symbol));
+                String name = jsonObject.getString(mainActivity.getString(R.string.name));
                 stockMaster.put(symbol, name);
             }
         } catch (Exception e) {

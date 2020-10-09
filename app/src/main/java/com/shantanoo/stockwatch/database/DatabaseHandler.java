@@ -29,13 +29,13 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     ///DB Columns
     private static final String SYMBOL = "StockSymbol";
-    private static final String NAME = "StockName";
+    private static final String COMPANY = "CompanyName";
 
     // DB Table Create Code
     private static final String SQL_CREATE_TABLE =
             "CREATE TABLE " + TABLE_NAME + " (" +
                     SYMBOL + " TEXT not null unique," +
-                    NAME + " TEXT not null )";
+                    COMPANY + " TEXT not null )";
 
     private SQLiteDatabase database;
 
@@ -63,7 +63,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         Cursor cursor = database.query(
                 TABLE_NAME,  // The table to query
-                new String[]{SYMBOL, NAME}, // The columns to return
+                new String[]{SYMBOL, COMPANY}, // The columns to return
                 null, // The columns for the WHERE clause
                 null, // The values for the WHERE clause
                 null, // don't group the rows
@@ -90,7 +90,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public void addStock(Stock stock) {
         ContentValues values = new ContentValues();
         values.put(SYMBOL, stock.getStockSymbol());
-        values.put(NAME, stock.getStockName());
+        values.put(COMPANY, stock.getStockName());
         long key = database.insert(TABLE_NAME, null, values);
         Log.d(TAG, "addStock: " + key);
     }
@@ -112,7 +112,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 String name = cursor.getString(1);
                 Log.d(TAG, "dumpDbToLog: " +
                         String.format("%s %-18s", SYMBOL + ":", symbol) +
-                        String.format("%s %-18s", NAME + ":", name));
+                        String.format("%s %-18s", COMPANY + ":", name));
                 cursor.moveToNext();
             }
             cursor.close();
