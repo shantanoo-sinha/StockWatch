@@ -34,36 +34,36 @@ public class Stock implements Serializable, Comparable<Stock> {
         return stockSymbol;
     }
 
-    public String getStockName() {
-        return stockName;
-    }
-
-    public double getStockPrice() {
-        return stockPrice;
-    }
-
-    public double getStockPriceChange() {
-        return stockPriceChange;
-    }
-
-    public double getStockPriceChangePercentage() {
-        return stockPriceChangePercentage;
-    }
-
     public void setStockSymbol(String stockSymbol) {
         this.stockSymbol = stockSymbol;
+    }
+
+    public String getStockName() {
+        return stockName;
     }
 
     public void setStockName(String stockName) {
         this.stockName = stockName;
     }
 
+    public double getStockPrice() {
+        return stockPrice;
+    }
+
     public void setStockPrice(double stockPrice) {
         this.stockPrice = stockPrice;
     }
 
+    public double getStockPriceChange() {
+        return stockPriceChange;
+    }
+
     public void setStockPriceChange(double stockPriceChange) {
         this.stockPriceChange = stockPriceChange;
+    }
+
+    public double getStockPriceChangePercentage() {
+        return stockPriceChangePercentage;
     }
 
     public void setStockPriceChangePercentage(double stockPriceChangePercentage) {

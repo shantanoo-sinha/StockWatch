@@ -1,8 +1,7 @@
-package com.shantanoo.stockwatch;
+package com.shantanoo.stockwatch.decoration;
 
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
-import android.util.Log;
 import android.view.View;
 
 import androidx.recyclerview.widget.RecyclerView;
@@ -29,7 +28,7 @@ public class DividerItemDecoration extends RecyclerView.ItemDecoration {
             final RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) child.getLayoutParams();
             final int top = child.getBottom() + params.bottomMargin;
             final int bottom = top + mDivider.getIntrinsicHeight();
-            mDivider.setBounds(left+10, top, right-10, bottom);
+            mDivider.setBounds(left + 10, top, right - 10, bottom);
             mDivider.draw(canvas);
         }
     }

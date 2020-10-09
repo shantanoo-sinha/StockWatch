@@ -30,6 +30,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.shantanoo.stockwatch.adapter.StocksAdapter;
 import com.shantanoo.stockwatch.database.DatabaseHandler;
+import com.shantanoo.stockwatch.decoration.DividerItemDecoration;
 import com.shantanoo.stockwatch.model.Stock;
 import com.shantanoo.stockwatch.service.StockDataDownloaderService;
 import com.shantanoo.stockwatch.service.StockNameDownloaderService;
