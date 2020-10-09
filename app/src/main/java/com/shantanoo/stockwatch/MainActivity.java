@@ -392,7 +392,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         AlertDialog dialog = builder.create();
         ListView listView = dialog.getListView();
-        listView.setDivider(new ColorDrawable(Color.BLUE));
+        listView.setDivider(new ColorDrawable(Color.GRAY));
         listView.setDividerHeight(1);
         dialog.show();
     }
