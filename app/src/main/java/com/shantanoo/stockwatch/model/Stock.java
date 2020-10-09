@@ -98,6 +98,6 @@ public class Stock implements Serializable, Comparable<Stock> {
     public int compareTo(Stock o) {
         if (o.getStockSymbol() == null)
             return 0;
-        return o.getStockSymbol().compareTo(this.getStockSymbol());
+        return this.getStockSymbol().compareTo(o.getStockSymbol());
     }
 }

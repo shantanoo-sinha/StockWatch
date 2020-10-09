@@ -23,6 +23,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -72,6 +73,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         stocksAdapter = new StocksAdapter(stocks, this);
         recyclerView.setAdapter(stocksAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setHasFixedSize(true);
+        recyclerView.addItemDecoration(new DividerItemDecoration(ContextCompat.getDrawable(getApplicationContext(), R.drawable.recycler_view_divider)));
 
         /*swipeRefreshLayout.setProgressViewOffset(true, 0, 200);
         swipeRefreshLayout.setColorSchemeColors(getResources().getColor(android.R.color.holo_blue_bright));*/
