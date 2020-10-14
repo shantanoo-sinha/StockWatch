@@ -77,8 +77,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         recyclerView.setHasFixedSize(true);
         recyclerView.addItemDecoration(new DividerItemDecoration(ContextCompat.getDrawable(getApplicationContext(), R.drawable.recycler_view_divider)));
 
-        /*swipeRefreshLayout.setProgressViewOffset(true, 0, 200);
-        swipeRefreshLayout.setColorSchemeColors(getResources().getColor(android.R.color.holo_blue_bright));*/
+        swipeRefreshLayout.setColorSchemeResources(android.R.color.holo_blue_bright,
+                android.R.color.holo_green_light,
+                android.R.color.holo_orange_light,
+                android.R.color.holo_red_light);
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -89,7 +91,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     ArrayList<Stock> stocksList = dbHandler.loadStocks();
                     for (int i = 0; i < stocksList.size(); i++) {
                         String symbol = stocksList.get(i).getStockSymbol();
-                        new StockDataDownloaderService(MainActivity.this).execute(symbol);
+                        new Thread(new StockDataDownloaderService(MainActivity.this, symbol)).start();
                     }
                     Log.d(TAG, "reload: COMPLETED");
                     return;
@@ -100,15 +102,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
-        new StockNameDownloaderService(this).execute();
-        dbHandler = new DatabaseHandler(this);
+        new Thread(new StockNameDownloaderService(MainActivity.this)).start();
+        dbHandler = new DatabaseHandler(MainActivity.this);
         stocks.addAll(dbHandler.loadStocks());
         Collections.sort(stocks);
         stocksAdapter.notifyDataSetChanged();
         if (isConnectedToNetwork()) {
             for (int i = 0; i < stocks.size(); i++) {
                 String symbol = stocks.get(i).getStockSymbol();
-                new StockDataDownloaderService(MainActivity.this).execute(symbol);
+                new Thread(new StockDataDownloaderService(MainActivity.this, symbol)).start();
             }
         } else
             onNetworkDisconnected(ON_LOAD);
@@ -206,7 +208,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         if (stockNamesMaster == null || stockNamesMaster.isEmpty())
-            new StockNameDownloaderService(this).execute();
+            new Thread(new StockNameDownloaderService(this)).start();
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(getApplicationContext().getString(R.string.stock_selection));
@@ -258,7 +260,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void addNewStock(String selection) {
         Log.d(TAG, "addNewStock:");
         String symbol = selection.split(getString(R.string.hyphen))[0].trim();
-        new StockDataDownloaderService(MainActivity.this).execute(symbol);
+        new Thread(new StockDataDownloaderService(MainActivity.this, symbol)).start();
         Stock stock = new Stock(symbol, stockNamesMaster.get(symbol));
         dbHandler.addStock(stock);
     }
@@ -377,7 +379,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 if (checkDuplicate(options[which]))
-                    showDuplicateStockDialog(symbol);
+                    showDuplicateStockDialog(options[which]);
                 else
                     addNewStock(options[which]);
             }

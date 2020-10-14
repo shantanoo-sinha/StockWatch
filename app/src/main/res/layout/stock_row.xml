@@ -5,7 +5,7 @@
     android:id="@+id/clStockRow"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="16dp"
+    android:layout_margin="8dp"
     android:background="@color/colorBackground">
 
     <TextView
@@ -22,7 +22,7 @@
 
     <TextView
         android:id="@+id/tvStockName"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="3dp"
         android:textColor="@color/colorText"
@@ -55,7 +55,6 @@
         android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="@+id/tvStockSymbol"
         app:layout_constraintEnd_toStartOf="@+id/tvStockPriceChangePercentage"
-        app:layout_constraintStart_toEndOf="@+id/ivStockChangeDirection"
         app:layout_constraintTop_toTopOf="@+id/tvStockSymbol"
         tools:text="@string/price_change" />
 
@@ -78,7 +77,7 @@
         android:layout_margin="3dp"
         android:contentDescription="@string/stock_change_percent_direction"
         app:layout_constraintBottom_toBottomOf="@+id/tvStockSymbol"
-        app:layout_constraintStart_toStartOf="@+id/guideline"
+        app:layout_constraintEnd_toStartOf="@+id/tvStockPriceChange"
         app:layout_constraintTop_toTopOf="@id/tvStockSymbol"
         app:srcCompat="@android:drawable/arrow_up_float" />
 

@@ -1,7 +1,6 @@
 package com.shantanoo.stockwatch.service;
 
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.util.Log;
 
 import com.shantanoo.stockwatch.MainActivity;
@@ -21,7 +20,7 @@ import java.util.Map;
 /**
  * Created by Shantanoo on 10/7/2020.
  */
-public class StockNameDownloaderService extends AsyncTask<Void, Void, String> {
+public class StockNameDownloaderService implements Runnable {
     private static final String TAG = "StockNameDownloader";
     private static final String DOWNLOAD_LINK = "https://api.iextrading.com/1.0/ref-data/symbols";
 
@@ -32,7 +31,7 @@ public class StockNameDownloaderService extends AsyncTask<Void, Void, String> {
     }
 
     @Override
-    protected String doInBackground(Void... voids) {
+    public void run() {
         Uri uri = Uri.parse(DOWNLOAD_LINK);
         String line;
         StringBuilder sb = new StringBuilder();
@@ -52,15 +51,19 @@ public class StockNameDownloaderService extends AsyncTask<Void, Void, String> {
                 sb.append(line).append('\n');
             }
         } catch (Exception e) {
-            Log.e(TAG, "doInBackground: Exception: ", e);
+            Log.e(TAG, "run: Exception: ", e);
         }
-        return sb.toString();
+        handleResults(sb.toString());
     }
 
-    @Override
-    protected void onPostExecute(String s) {
-        super.onPostExecute(s);
-        mainActivity.populateStockNamesData((HashMap<String, String>) parseJSON(s));
+    public void handleResults(final String jsonString) {
+        final HashMap<String, String> hashMap = (HashMap<String, String>) parseJSON(jsonString);
+        mainActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mainActivity.populateStockNamesData(hashMap);
+            }
+        });
     }
 
     private Map<String, String> parseJSON(String input) {
