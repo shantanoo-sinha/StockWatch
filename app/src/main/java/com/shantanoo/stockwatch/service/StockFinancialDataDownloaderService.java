@@ -19,7 +19,7 @@ import java.net.URL;
 /**
  * Created by Shantanoo on 10/8/2020.
  */
-public class StockDataDownloaderService implements Runnable {
+public class StockFinancialDataDownloaderService implements Runnable {
 
     private static final String TAG = "StockDataDownloader";
 
@@ -30,7 +30,7 @@ public class StockDataDownloaderService implements Runnable {
     private String stockSymbol;
     private MainActivity mainActivity;
 
-    public StockDataDownloaderService(MainActivity mainActivity, String stockSymbol) {
+    public StockFinancialDataDownloaderService(MainActivity mainActivity, String stockSymbol) {
         this.mainActivity = mainActivity;
         this.stockSymbol = stockSymbol;
     }
