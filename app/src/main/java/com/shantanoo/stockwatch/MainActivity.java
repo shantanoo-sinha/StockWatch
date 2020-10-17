@@ -54,7 +54,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static final int REFRESH = 3;
     private static final int DUPLICATE_STOCK = 4;
     private static final int STOCK_NOT_FOUND = 5;
-    private static final int MULTIPLE_STOCK_FOUND = 6;
 
     private static final String MARKET_WATCH_URL = "http://www.marketwatch.com/investing/stock/";
 
@@ -241,12 +240,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     ArrayList<String> stockList = searchStock(stockSymbol);
                     if (stockList.isEmpty())
                         showDialog(STOCK_NOT_FOUND, stockSymbol);
-                        /*showStockNotFoundDialog(stockSymbol);*/
                     else if (stockList.size() == 1) {
                         String stockOption = stockList.get(0);
                         if (checkDuplicate(stockOption))
                             showDialog(DUPLICATE_STOCK, stockSymbol);
-                            /*showDuplicateStockDialog(stockSymbol);*/
                         else
                             addNewStock(stockOption);
                     } else {
@@ -385,26 +382,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    /*
-        private void showDuplicateStockDialog(String symbol) {
-            Log.d(TAG, "showDuplicateStockDialog:");
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setIcon(R.drawable.baseline_warning_black_48);
-            builder.setTitle(getString(R.string.duplicate_stock));
-            builder.setMessage("Stock Symbol " + symbol + " is already displayed");
-            AlertDialog dialog = builder.create();
-            dialog.show();
-        }
-
-        private void showStockNotFoundDialog(String symbol) {
-            Log.d(TAG, "showStockNotFoundDialog:");
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("Symbol Not Found: " + symbol);
-            builder.setMessage("Data for stock symbol");
-            AlertDialog dialog = builder.create();
-            dialog.show();
-        }
-    */
     private void showMultipleStocksFoundDialog(ArrayList<String> stockOptions) {
         Log.d(TAG, "showMultipleStocksFoundDialog:");
         final String[] options = stockOptions.toArray(new String[0]);
@@ -418,7 +395,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void onClick(DialogInterface dialog, int which) {
                 if (checkDuplicate(options[which]))
                     showDialog(DUPLICATE_STOCK, options[which]);
-                    /*showDuplicateStockDialog(options[which]);*/
                 else
                     addNewStock(options[which]);
             }
