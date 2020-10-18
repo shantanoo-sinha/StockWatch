@@ -289,7 +289,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         for (String symbol : stockNamesMaster.keySet()) {
             String name = stockNamesMaster.get(symbol);
             if (symbol.toUpperCase().contains(searchStock.toUpperCase()) || (name != null && name.toUpperCase().contains(searchStock.toUpperCase())))
-                stockList.add(symbol + " - " + name);
+                stockList.add(String.format("%s %s %s", symbol, getString(R.string.hyphen), name));
         }
         Collections.sort(stockList);
         return stockList;
