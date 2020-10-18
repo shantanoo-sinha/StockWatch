@@ -291,6 +291,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             if (symbol.toUpperCase().contains(searchStock.toUpperCase()) || (name != null && name.toUpperCase().contains(searchStock.toUpperCase())))
                 stockList.add(symbol + " - " + name);
         }
+        Collections.sort(stockList);
         return stockList;
     }
 
