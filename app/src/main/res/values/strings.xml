@@ -32,7 +32,7 @@
     <string name="stock_not_found_message">No data for stock symbol</string>
     <string name="stock_not_found_title">Symbol Not Found: %s</string>
     <string name="duplicate_stock_message">Stock Symbol %s is already displayed</string>
-    <string name="on_load_no_network_message">Stocks Watch App Needs Network Connection To Fetch Latest Stock Prices\nLoading Saved Stocks With Price As 0</string>
+    <string name="on_load_no_network_message">Stocks Watch App Needs Network Connection To Fetch Latest Stock Prices.\nLoading Saved Stocks With Price As 0</string>
     <string name="add_stock_no_network_message">Stocks Cannot Be Added Without A Network Connection</string>
     <string name="refresh_no_network_message">Stocks Cannot Be Updated Without A Network Connection</string>
     <string name="never_mind">NEVER MIND</string>
